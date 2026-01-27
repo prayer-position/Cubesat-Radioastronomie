@@ -47,5 +47,22 @@ def gmsk_psd():
   plotWelchPSD(s3,fs,fc, ax = ax , color = 'm', label = '$BT_b=0.7$')
   plotWelchPSD(s4,fs,fc, ax = ax , color = 'k', label = '$BT_b=\infty$')
   ax.set_xlabel('$f-f_c$'); ax.set_ylabel('PSD (dB/Hz)')
-  ax.legend();
+  ax.legend()
   fig.show()
+
+def plot_spectrogram(x, fs, fc, title):
+  """
+  Plot spectrogram of a carrier modulated signal
+  Parameters:
+    x : signal vector (numpy array) for which the spectrogram is plotted
+    fs : sampling frequency
+    fc : center carrier frequency of the signal
+  """
+  from scipy.signal import spectrogram
+  f, t, Sxx = spectrogram(x, fs, nperseg=1024, noverlap=512)
+  indices = (f>=0) & (f<4*fc) # To plot PSD from Fc to 4*Fc
+  plt.pcolormesh(t, f[indices]-fc, 10 * np.log10(Sxx[indices, :]), shading='gouraud')
+  plt.ylabel('Frequency [Hz]')
+  plt.xlabel('Time [sec]')
+  plt.title(title)
+  plt.colorbar(label='Intensity [dB]')

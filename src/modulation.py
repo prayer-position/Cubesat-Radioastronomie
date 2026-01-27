@@ -63,21 +63,21 @@ def gmsk_mod(a, fc, L, BT, enable_plot = False):
 
   if enable_plot:
     fig, axs = plt.subplots(2, 4)
-    axs[0,0].plot(np.arange(0,len(c_t))*Ts,c_t);
+    axs[0,0].plot(np.arange(0,len(c_t))*Ts,c_t)
     axs[0,0].set_title('c(t)');axs[0,0].set_xlim(0,40*Tb)
-    axs[0,1].plot(np.arange(-k*Tb,k*Tb+Ts,Ts),h_t);
+    axs[0,1].plot(np.arange(-k*Tb,k*Tb+Ts,Ts),h_t)
     axs[0,1].set_title('$h(t): BT_b$='+str(BT))
-    axs[0,2].plot(t,I,'--');axs[0,2].plot(t,sI_t,'r');
-    axs[0,2].set_title('$I(t)cos(2 \pi f_c t)$');
+    axs[0,2].plot(t,I,'--');axs[0,2].plot(t,sI_t,'r')
+    axs[0,2].set_title('$I(t)cos(2 \pi f_c t)$')
     axs[0,2].set_xlim(0,10*Tb)
-    axs[0,3].plot(t,Q,'--');axs[0,3].plot(t,sQ_t,'r');
-    axs[0,3].set_title('$Q(t)sin(2 \pi f_c t)$');
+    axs[0,3].plot(t,Q,'--');axs[0,3].plot(t,sQ_t,'r')
+    axs[0,3].set_title('$Q(t)sin(2 \pi f_c t)$')
     axs[0,3].set_xlim(0,10*Tb)
-    axs[1,0].plot( np.arange(0,len(bnorm_t))*Ts,bnorm_t);
+    axs[1,0].plot( np.arange(0,len(bnorm_t))*Ts,bnorm_t)
     axs[1,0].set_title('b(t)');axs[1,0].set_xlim(0,40*Tb)
-    axs[1,1].plot(np.arange(0,len(phi_t))*Ts, phi_t);
+    axs[1,1].plot(np.arange(0,len(phi_t))*Ts, phi_t)
     axs[1,1].set_title('$\phi(t)$')
-    axs[1,2].plot(t,s_t);
+    axs[1,2].plot(t,s_t)
     axs[1,2].set_title('s(t)'); axs[1,2].set_xlim(0,20*Tb)
     axs[1,3].plot(I,Q);axs[1,3].set_title('constellation')
     fig.show()
