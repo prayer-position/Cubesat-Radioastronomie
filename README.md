@@ -28,11 +28,11 @@ Ensure you have Python 3.8+ installed.
    	bash setup.sh 
 	```
 If on Windows/git bash use : 
-	```bash
+	```
 	source venv_cubesat/Scripts/activate
 	```
 If on Mac/Linux use : 
-	```bash 
+	``` 
 	source venv_cubesat/bin/activate
 	```
 
