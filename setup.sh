@@ -2,17 +2,21 @@
 
 echo "--- Starting GMSK Project Setup ---"
 
-# 1. Create a virtual environment named 'venv'
-python -m venv venv
+# Create a virtual environment named $ENV_NAME
+ENV_NAME="venv_cubesat"
+if [ ! -d "$ENV_NAME" ]; then
+	python -m venv $ENV_NAME
+	echo "Environment created"
+fi
 
-# 2. Activate the virtual environment
-# Note: In Git Bash on Windows, use this specific path
-source venv/Scripts/activate
+# Activate the virtual environment
 
-# 3. Upgrade pip
-pip install --upgrade pip
+source $ENV_NAME/Scripts/activate
 
-# 4. Install requirements
+# Upgrade pip
+pip3 install --upgrade pip
+
+# Install requirements
 if [ -f requirements.txt ]; then
     pip install -r requirements.txt
     echo "--- Libraries installed successfully! ---"
@@ -20,4 +24,6 @@ else
     echo "--- Error: requirements.txt not found. ---"
 fi
 
-echo "--- Setup Complete. To start, type: source venv/Scripts/activate ---
+chmod 755 setup.sh
+
+echo "--- Setup Complete. To start, type: source $ENV_NAME/Scripts/activate ---"
