@@ -12,12 +12,31 @@ This project implements a complete Digital Signal Processing (DSP) pipeline for 
 * `src/`: Core logic (Modulation, Demodulation, Channel).
 * `Data/`: Scripts for generating synthetic IQ datasets for AI training.
 * `notebooks/`: Interactive Jupyter Notebooks for BER analysis and system demos.
-* `ai/`: Neural Network architectures and training loops.
+* `weights/`: Neural Network architectures and training loops.
 
 ## 📦 Setup & Installation
 Ensure you have Python 3.8+ installed.
 
 1. **Clone the repository:**
    ```bash
-   git clone [https://github.com/YOUR_USERNAME/Cubesat-Radioastronomie.git](https://github.com/YOUR_USERNAME/Cubesat-Radioastronomie.git)
+   git clone git@github.com:prayer-position/Cubesat-Radioastronomie.git
    cd Cubesat-Radioastronomie
+```
+2. **Setup environment**
+   ```bash
+bash setup.sh
+```
+If on Windows/git bash use : 
+```bash
+source venv_cubesat/Scripts/activate
+```
+If on Mac/Linux use : 
+```bash 
+source venv_cubesat/bin/activate
+```
+
+3. **Path fixing**
+```bash
+pip install -e .
+```
+
