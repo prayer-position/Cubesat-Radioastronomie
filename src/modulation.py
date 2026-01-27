@@ -1,3 +1,7 @@
+import numpy as np  # Move this to the top!
+import matplotlib.pyplot as plt
+from scipy.signal import upfirdn, lfilter
+
 def gaussianLPF(BT, Tb, L, k):
   """
   Generate filter coefficients of Gaussian low pass filter
@@ -9,6 +13,7 @@ def gaussianLPF(BT, Tb, L, k):
   Returns:
     h_norm : normalized filter coefficients of Gaussian LPF
   """
+
   B = BT/Tb
   # Truncated time limits for the filter
   t = np.arange(start = -k*Tb, stop = k*Tb + Tb/L, step = Tb/L)
@@ -31,7 +36,6 @@ def gmsk_mod(a, fc, L, BT, enable_plot = False):
         s_t : GMSK modlated signal with carrier s(t)
         s_complex : baseband GMSK signal
   """
-  from scipy.signal import upfirdn, lfilter
 
   # Derived waveform timing paramters
   fs = L * fc

@@ -1,3 +1,6 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
 def plotWelchPSD(x, fs, fc, ax = None, color = 'b', label = None):
   """
   PLot PSD of a carrier modulated signal using Welch estimate

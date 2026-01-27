@@ -7,6 +7,7 @@ def gmsk_demod(r_complex, L):
   Returns :
     a_hat : detected binary stream
   """
+  import numpy as np
   I=np.real(r_complex); Q = -np.imag(r_complex); # I,Q streams
   z1 = Q * np.hstack((np.zeros(L), I[0:len(I)-L]))
   z2 = I * np.hstack((np.zeros(L), Q[0:len(I)-L]))
