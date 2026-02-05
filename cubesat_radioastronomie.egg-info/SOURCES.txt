@@ -8,3 +8,4 @@ src/channel.py
 src/demodulation.py
 src/modulation.py
 src/spectra.py
+src/test_gen.py
