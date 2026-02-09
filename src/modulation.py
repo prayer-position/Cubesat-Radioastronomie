@@ -82,3 +82,44 @@ def gmsk_mod(a, fc, L, BT, enable_plot = False):
     axs[1,3].plot(I,Q);axs[1,3].set_title('constellation')
     fig.show()
   return (s_t, s_complex)
+
+def gmsk_demod(r_complex, L):
+  """
+  Function to demodulate a baseband GMSK signal
+  Parameters :
+    r_complex : received signal at receiver front end (complex form - I+Q)
+    L : oversampling factor
+  Returns :
+    a_hat : detected binary stream
+  """
+  import numpy as np
+  I=np.real(r_complex); Q = -np.imag(r_complex); # I,Q streams
+  z1 = Q * np.hstack((np.zeros(L), I[0:len(I)-L]))
+  z2 = I * np.hstack((np.zeros(L), Q[0:len(I)-L]))
+  z = z1 - z2
+  a_hat = (z[L-1::L] > 0).astype(int) #sampling and hard decision
+  # Sampling indices depend on the truncation length (k) of Gaussian LPF defined
+  # in the modulator
+  return a_hat
+
+def differential_encode(bits):
+  """
+  Encodes bits based on transitions
+  y[n] = x[n] XOR y[n-1]
+  """
+  out = np.zeros_like(bits)
+  out[0] = bits[0]
+  for i in range(1, len(bits)):
+    out[i] = bits[i] ^ out[i-1]
+  return out
+
+def differential_decode(bits):
+  """
+  Decodes transitions back to original bits
+  x[n] = y[n] XOR y[n-1]
+  """
+  out = np.zeros_like(bits)
+  out[0] = bits[0]
+  for i in range(1, len(bits)):
+    out[i] = bits[i] ^ bits[i-1]
+  return out
