@@ -54,7 +54,7 @@ class GMSK_VAE(nn.Module):
             nn.ReLU(),
 
             # Final Encoder Layer: outputs 2x the channels (Mu + LogVar)
-            nn.Conv1d(32, 2, * latent_channels, kernel_size = 3, stride = 1, padding = 1),
+            nn.Conv1d(32, 2 * latent_channels, kernel_size = 3, stride = 1, padding = 1),
         )
 
         # --- DECODER ---
