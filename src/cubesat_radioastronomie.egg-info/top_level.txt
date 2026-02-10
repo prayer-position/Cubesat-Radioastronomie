@@ -1,4 +1,0 @@
-channel
-demodulation
-modulation
-spectra
