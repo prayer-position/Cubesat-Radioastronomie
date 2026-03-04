@@ -101,25 +101,3 @@ def gmsk_demod(r_complex, L):
   # Sampling indices depend on the truncation length (k) of Gaussian LPF defined
   # in the modulator
   return a_hat
-
-def differential_encode(bits):
-  """
-  Encodes bits based on transitions
-  y[n] = x[n] XOR y[n-1]
-  """
-  out = np.zeros_like(bits)
-  out[0] = bits[0]
-  for i in range(1, len(bits)):
-    out[i] = bits[i] ^ out[i-1]
-  return out
-
-def differential_decode(bits):
-  """
-  Decodes transitions back to original bits
-  x[n] = y[n] XOR y[n-1]
-  """
-  out = np.zeros_like(bits)
-  out[0] = bits[0]
-  for i in range(1, len(bits)):
-    out[i] = bits[i] ^ bits[i-1]
-  return out
