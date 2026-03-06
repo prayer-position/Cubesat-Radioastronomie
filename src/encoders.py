@@ -1,4 +1,5 @@
 import numpy as np
+from numba import njit
 
 def differential_encode(bits):
   """
@@ -22,62 +23,74 @@ def differential_decode(bits):
     out[i] = bits[i] ^ bits[i-1]
   return out
 
+# @njit tells Python to compile this directly into C code
+@njit
 def viterbi(received_iq):
     """
     Decodes a baseband I/Q signal using a 4-state Viterbi algorithm
     Expects 1 sample per symbol (downsampled from L oversampling)
     """
-    ideal_phases = [1+0j, 0+1j, -1+0j, 0-1j]
+    ideal_real = np.array([1.0, 0.0, -1.0, 0.0])
+    ideal_imag = np.array([0.0, 1.0, 0.0, -1.0])
     num_states = 4
 
     # Trellis map: From each state, where can we go ?
     # Format: current_state: {bit_value: next_stage}
     # Bit 1 = +90 deg (state + 1), Bit 0 = -90 deg (state -1)
-    transitions = {
-      0: {1: 1, 0: 3},
-      1: {1: 2, 0: 0},
-      2: {1: 3, 0: 1},
-      3: {1: 0, 0: 2}
-    }
+    transitions = np.array([
+       [3, 1],
+       [0, 2],
+       [1, 3],
+       [2, 0]
+    ], dtype = np.int32)
 
     # Path Metrics initialization (cost to reach a state)
-    # Start at state 0 with 0 cost & other at infinity
-    path_metrics = {0: 0.0, 1: float('inf'), 2: float('inf'), 3: float('inf')}
+    # Start at state 0 with 0 cost & others at high value
+    path_metrics = np.array([0.0, 1e9, 1e9, 1e9])
 
     # Keep track of the surviving paths: {state: [list of bits]}
-    paths = {0: [], 1: [], 2: [], 3: []}
+    traceback_states = np.zeros((len(received_iq), 4), dtype = np.int32)
+    traceback_bits = np.zeros((len(received_iq), 4), dtype = np.int8)
 
     # Looping through every received I/Q symmbol
-    for r in received_iq:
-        new_metrics = {0: float('inf'), 1: float('inf'), 2: float('inf'), 3: float('inf')}
-        new_paths = {0: [], 1: [], 2: [], 3: []}
+    for i in range(len(received_iq)):
+        r_real = received_iq[i].real
+        r_imag = received_iq[i].imag
 
-        for current_state in range(num_states):
-            if path_metrics[current_state] == float('inf'):
-                continue # Skip uncreachable states
-        
-            for bit, next_state in transitions[current_state].items():
-                # Expected symbol is the ideal pahse of the next state
-                expected_symbol = ideal_phases[next_state]
+        new_metrics = np.array([1e9, 1e9, 1e9, 1e9])
 
-                # BRANCH METRIC: Squared Euclidean distance between received and expected
-                # Soft decision algorithm 
-                distance = (np.real(r) - np.real(expected_symbol))**2 + \
-                           (np.imag(r) - np.imag(expected_symbol))**2
+        for state in range(4):
+           if path_metrics[state] > 1e8:
+              continue # Skip dead paths
+           
+           for bit in range(2):
+              next_state = transitions[state, bit]
 
-                # PATH MATRIC: Accumulated cost
-                total_cost = path_metrics[current_state] + distance 
+              # Fast Euclidean distance calculation
+              dist = (r_real - ideal_real[next_state])**2 + (r_imag - ideal_imag[next_state])**2
+              cost = path_metrics[state] + dist
 
-                # If new path to 'next_state' is cheaper than the existing one, we keep it
-                if total_cost < new_metrics[next_state]:
-                    new_metrics[next_state] = total_cost
-                    new_paths[next_state] = paths[current_state] + [bit]
-        
+              if cost < new_metrics[next_state]:
+                 new_metrics[next_state] = cost
+                 traceback_states[i, next_state] = state
+                 traceback_bits[i, next_state] = bit
+
         path_metrics = new_metrics
-        paths = new_paths
     
-    # TRACEBACK: Find the state with the lwoest total error at the very end
-    best_final_state = min(path_metrics, key = path_metrics.get)
-    best_bit_sequence = paths[best_final_state]
-
-    return np.array(best_bit_sequence)
+    out_bits = np.zeros(len(received_iq), dtype=np.int8)
+    
+    # Find the best ending state
+    best_state = 0
+    min_metric = path_metrics[0]
+    for s in range(1, 4):
+       if path_metrics[s] < min_metric:
+          min_metric = path_metrics[s]
+          best_state = s
+      
+    # Trace the bath backwards to recover the bits
+    curr_state = best_state
+    for i in range(len(received_iq) -1, -1, -1):
+       out_bits[i] = traceback_bits[i, curr_state]
+       curr_state = traceback_states[i, curr_state]
+    
+    return out_bits
