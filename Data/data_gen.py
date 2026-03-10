@@ -21,15 +21,18 @@ def generate_denoising_dataset(N_samples=1000, bits_per_sample=256, L=16, fc=146
     print(f"Generating {N_samples} signal bursts...")
 
     for i in range(N_samples):
-        # 1. Generate random bits
+        # Generate random bits
         a = np.random.randint(2, size=bits_per_sample)
         
-        # 2. Modulate (Clean Signal)
+        # Modulate (Clean Signal)
         _, s_complex = gmsk_mod(a, fc, L, BT)
         
-        # 3. Add Noise (Noisy Signal)
-        # SNR_db calculation depends on your awgn implementation (EsN0 vs SNR)
+        # Add Noise (Noisy Signal)
         s_noisy = awgn(s_complex, snr_range[i], L=L)
+
+        max_val = np.max(np.abs(s_noisy))
+        if max_val > 0:
+            s_noisy = s_noisy / max_val
         
         # 4. Reformat to (2, Time) for Neural Network (Real/Imag channels)
         # We split complex into two real channels: [Real, Imag]
